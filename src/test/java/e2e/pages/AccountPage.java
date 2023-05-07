@@ -83,8 +83,7 @@ public class AccountPage extends CommonMethods {
         userPasswordRepeat.sendKeys("password1");
     }
     public void setGender(){
-        for (WebElement element:
-             gender) {
+        for (WebElement element:gender) {
             if (Objects.equals(element.getText(),"Female")){
                 element.click();
                 click(element);

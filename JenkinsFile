@@ -1,0 +1,101 @@
+pipeline{
+    agent any
+    stages{
+        stage ('Compile stage'){
+            steps {
+                withMaven(maven: 'maven_3_5_0'){
+                    sh 'mvn clean install'
+                }
+            }
+        }
+
+        stage ('Test stage'){
+                    steps {
+                        withMaven(maven: 'maven_3_5_0'){
+                            sh 'mvn test'
+                        }
+                    }
+        }
+        stage ('Cucumber Reports'){
+            steps {
+                cucumber buildStatus: "UNSTABLE",
+                    fileIncludePattern: " **/cucumber.json",
+                    jsonReportDirectory: 'target'
+            }
+        }
+    }
+
+//Jenkinsfile (Declarative Pipeline)
+
+ // Build
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                sh 'make'
+                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+            }
+        }
+    }
+}
+
+// Test
+pipeline {
+    agent any
+
+    stages {
+        stage('Test') {
+            steps {
+                /* `make check` returns non-zero on test failures,
+                * using `true` to allow the Pipeline to continue nonetheless
+                */
+                sh 'make check || true'
+                junit '**/target/*.xml'
+            }
+        }
+    }
+}
+
+// Deploy
+pipeline {
+    agent any
+
+    stages {
+        stage('Deploy') {
+            when {
+              expression {
+                currentBuild.result == null || currentBuild.result == 'SUCCESS'
+              }
+            }
+            steps {
+                sh 'make publish'
+            }
+        }
+    }
+}
+
+//Jenkinsfile (Declarative Pipeline)
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building..'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing..'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+            }
+        }
+    }
+}
+}
